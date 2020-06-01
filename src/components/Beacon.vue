@@ -1,93 +1,33 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,
-      <br />check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener"
-        >vue-cli documentation</a
-      >.
-    </p>
-    <h3>Installed CLI Plugins</h3>
+    <h1>Beacon Demo</h1>
+    <h3>Demo 1 - Request Permission</h3>
+    <button v-on:click="requestPermission">Request Permission</button>
+    <h3>Demo 2 - Send Operation Request</h3>
+    <button v-on:click="requestOperation">Delegate Operation</button>
+    <h3>Demo 3 - Contract Call</h3>
+    <button v-on:click="callContract">Call Contract</button>
+    <h3>Links</h3>
     <ul>
       <li>
         <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel"
+          href="https://github.com/airgap-it/beacon-vue-example"
           target="_blank"
           rel="noopener"
-          >babel</a
+          >Github</a
         >
       </li>
       <li>
         <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-typescript"
+          href="https://github.com/airgap-it/beacon-sdk"
           target="_blank"
           rel="noopener"
-          >typescript</a
+          >Beacon SDK</a
         >
       </li>
       <li>
-        <a
-          href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint"
-          target="_blank"
-          rel="noopener"
-          >eslint</a
-        >
-      </li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li>
-        <a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a>
-      </li>
-      <li>
-        <a href="https://forum.vuejs.org" target="_blank" rel="noopener"
-          >Forum</a
-        >
-      </li>
-      <li>
-        <a href="https://chat.vuejs.org" target="_blank" rel="noopener"
-          >Community Chat</a
-        >
-      </li>
-      <li>
-        <a href="https://twitter.com/vuejs" target="_blank" rel="noopener"
-          >Twitter</a
-        >
-      </li>
-      <li>
-        <a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a>
-      </li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li>
-        <a href="https://router.vuejs.org" target="_blank" rel="noopener"
-          >vue-router</a
-        >
-      </li>
-      <li>
-        <a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a>
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/vue-devtools#vue-devtools"
-          target="_blank"
-          rel="noopener"
-          >vue-devtools</a
-        >
-      </li>
-      <li>
-        <a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener"
-          >vue-loader</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/vuejs/awesome-vue"
-          target="_blank"
-          rel="noopener"
-          >awesome-vue</a
+        <a href="https://www.walletbeacon.io/" target="_blank" rel="noopener"
+          >walletbeacon.io</a
         >
       </li>
     </ul>
@@ -100,6 +40,16 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 @Component
 export default class Beacon extends Vue {
   @Prop() private msg!: string;
+
+  requestPermission() {
+    alert("requestPermission");
+  }
+  requestOperation() {
+    alert("requestOperation");
+  }
+  callContract() {
+    alert("callContract");
+  }
 }
 </script>
 
