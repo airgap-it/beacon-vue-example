@@ -3,8 +3,11 @@
     <h1>Beacon Demo</h1>
     <h3>Demo 1 - Request Permission</h3>
     <button v-on:click="requestPermission">Request Permission</button>
+    {{ address }}
+    {{ scopes }}
     <h3>Demo 2 - Send Operation Request</h3>
     <button v-on:click="requestOperation">Delegate Operation</button>
+    {{ operationHash }}
     <h3>Demo 3 - Contract Call</h3>
     <button v-on:click="callContract">Call Contract</button>
     <h3>Links</h3>
@@ -35,20 +38,55 @@
 </template>
 
 <script lang="ts">
+import {
+  DAppClient,
+  PermissionScope,
+  TezosOperationType,
+} from "@airgap/beacon-sdk";
+import { Tezos } from "@taquito/taquito";
+import { BeaconWallet } from "@taquito/beacon-wallet";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 @Component
 export default class Beacon extends Vue {
   @Prop() private msg!: string;
 
-  requestPermission() {
-    alert("requestPermission");
+  public address: string | undefined;
+  public scopes: PermissionScope[] | undefined;
+
+  public operationHash: string | undefined;
+
+  private beaconClient = new DAppClient({ name: "Vue Sample DApp" });
+
+  data() {
+    return {
+      address: undefined,
+      scopes: undefined,
+      operationHash: undefined,
+    };
   }
-  requestOperation() {
-    alert("requestOperation");
+
+  async requestPermission() {
+    const permissions = await this.beaconClient.requestPermissions();
+
+    this.address = permissions.address;
+    this.scopes = permissions.scopes;
   }
-  callContract() {
-    alert("callContract");
+  async requestOperation() {
+    const operationResponse = await this.beaconClient.requestOperation({
+      operationDetails: [
+        {
+          kind: TezosOperationType.TRANSACTION,
+          amount: "123",
+          destination: "tz1d75oB6T4zUMexzkr5WscGktZ1Nss1JrT7",
+        },
+      ],
+    });
+
+    this.operationHash = operationResponse.transactionHash;
+  }
+  async callContract() {
+    alert("contract call");
   }
 }
 </script>
