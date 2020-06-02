@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "@airgap/beacon-sdk": "^1.0.0",
-    "@taquito/beacon-wallet": "^6.3.0-wallet.3",
-    "@taquito/taquito": "^6.3.0-wallet.3",
+    "@taquito/beacon-wallet": "^6.3.0-wallet.4",
+    "@taquito/taquito": "^6.3.0-wallet.4",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
