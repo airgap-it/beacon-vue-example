@@ -72,6 +72,7 @@ export default class Beacon extends Vue {
       address: undefined,
       scopes: undefined,
       operationHash: undefined,
+      taquitoOperationHash: undefined,
     };
   }
 
