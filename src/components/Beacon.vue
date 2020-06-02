@@ -1,15 +1,22 @@
 <template>
   <div class="hello">
-    <h1>Beacon Demo</h1>
     <h3>Demo 1 - Request Permission</h3>
+    <br />
     <button v-on:click="requestPermission">Request Permission</button>
+    <br />
     {{ address }}
+    <br />
     {{ scopes }}
     <h3>Demo 2 - Send Operation Request</h3>
+    <br />
     <button v-on:click="requestOperation">Delegate Operation</button>
+    <br />
     {{ operationHash }}
     <h3>Demo 3 - Contract Call</h3>
+    <br />
     <button v-on:click="callContract">Call Contract</button>
+    <br />
+    {{ taquitoOperationHash }}
     <h3>Links</h3>
     <ul>
       <li>
@@ -56,7 +63,9 @@ export default class Beacon extends Vue {
 
   public operationHash: string | undefined;
 
-  private beaconClient = new DAppClient({ name: "Vue Sample DApp" });
+  public taquitoOperationHash: string | undefined;
+
+  private beaconClient = new DAppClient({ name: "Vue DApp" });
 
   data() {
     return {
@@ -78,7 +87,7 @@ export default class Beacon extends Vue {
         {
           kind: TezosOperationType.TRANSACTION,
           amount: "123",
-          destination: "tz1d75oB6T4zUMexzkr5WscGktZ1Nss1JrT7",
+          destination: "tz1Mj7RzPmMAqDUNFBn5t5VbXmWW4cSUAdtT",
         },
       ],
     });
@@ -86,7 +95,23 @@ export default class Beacon extends Vue {
     this.operationHash = operationResponse.transactionHash;
   }
   async callContract() {
-    alert("contract call");
+    const wallet = new BeaconWallet({ name: "Taquito DApp" });
+    Tezos.setWalletProvider(wallet);
+    await wallet.requestPermissions();
+
+    const contract = await Tezos.wallet.at(
+      "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn" // TZBTC
+    );
+
+    const result = await contract.methods
+      .transfer(
+        "tz1d75oB6T4zUMexzkr5WscGktZ1Nss1JrT7",
+        "tz1Mj7RzPmMAqDUNFBn5t5VbXmWW4cSUAdtT",
+        1
+      )
+      .send();
+
+    this.taquitoOperationHash = result.opHash;
   }
 }
 </script>
