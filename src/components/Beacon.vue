@@ -58,6 +58,7 @@ import {
   PermissionScope,
   TezosOperationType,
   BeaconEvent,
+  NetworkType,
 } from "@airgap/beacon-sdk";
 import { Tezos } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
@@ -92,7 +93,9 @@ export default class Beacon extends Vue {
 
   // Send a permission request to the wallet / extension
   async requestPermission() {
-    const permissions = await this.beaconClient.requestPermissions();
+    const permissions = await this.beaconClient.requestPermissions({
+      network: { type: NetworkType.CARTHAGENET },
+    });
 
     this.address = permissions.address;
     this.scopes = permissions.scopes;
@@ -141,7 +144,6 @@ export default class Beacon extends Vue {
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h3 {
   margin: 40px 0 0;
