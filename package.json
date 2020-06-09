@@ -9,7 +9,7 @@
     "deploy": "./deploy.sh"
   },
   "dependencies": {
-    "@airgap/beacon-sdk": "^1.0.1",
+    "@airgap/beacon-sdk": "^1.0.4",
     "@taquito/beacon-wallet": "^6.3.0-wallet.4",
     "@taquito/taquito": "^6.3.0-wallet.4",
     "core-js": "^3.6.5",

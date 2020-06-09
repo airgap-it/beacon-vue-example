@@ -58,7 +58,6 @@ import {
   PermissionScope,
   TezosOperationType,
   BeaconEvent,
-  NetworkType,
 } from "@airgap/beacon-sdk";
 import { Tezos } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
@@ -93,9 +92,7 @@ export default class Beacon extends Vue {
 
   // Send a permission request to the wallet / extension
   async requestPermission() {
-    const permissions = await this.beaconClient.requestPermissions({
-      network: { type: NetworkType.CARTHAGENET },
-    });
+    const permissions = await this.beaconClient.requestPermissions();
 
     this.address = permissions.address;
     this.scopes = permissions.scopes;
