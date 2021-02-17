@@ -58,11 +58,12 @@ import {
   PermissionScope,
   TezosOperationType,
   BeaconEvent,
+  NetworkType,
+  defaultEventCallbacks
 } from "@airgap/beacon-sdk";
 import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { Component, Vue } from "vue-property-decorator";
-import { defaultEventCallbacks } from "@airgap/beacon-sdk/dist/events";
 
 const Tezos = new TezosToolkit('https://delphinet.smartpy.io')
 
@@ -82,10 +83,10 @@ export default class Beacon extends Vue {
     name: "Vue DApp",
     eventHandlers: {
       // Overwrite standard behavior of certain events
-      [BeaconEvent.P2P_LISTEN_FOR_CHANNEL_OPEN]: {
+      [BeaconEvent.PAIR_INIT]: {
         handler: async (syncInfo) => {
           // Add standard behavior back (optional)
-          await defaultEventCallbacks.P2P_LISTEN_FOR_CHANNEL_OPEN(syncInfo);
+          await defaultEventCallbacks.PAIR_INIT(syncInfo);
           console.log("syncInfo", syncInfo);
         },
       },
@@ -94,7 +95,7 @@ export default class Beacon extends Vue {
 
   // Send a permission request to the wallet / extension
   async requestPermission() {
-    const permissions = await this.beaconClient.requestPermissions();
+    const permissions = await this.beaconClient.requestPermissions({network:{type : NetworkType.DELPHINET }});
 
     this.address = permissions.address;
     this.scopes = permissions.scopes;
@@ -122,7 +123,7 @@ export default class Beacon extends Vue {
     const wallet = new BeaconWallet({ name: "Taquito DApp" });
     Tezos.setWalletProvider(wallet);
     // Request permissions
-    await wallet.requestPermissions();
+    await wallet.requestPermissions({network : {type : NetworkType.DELPHINET }});
 
     // Get contract
     const contract = await Tezos.wallet.at(

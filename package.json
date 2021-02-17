@@ -9,10 +9,10 @@
     "deploy": "./deploy.sh"
   },
   "dependencies": {
-    "@airgap/beacon-sdk": "^1.0.4",
-    "@taquito/beacon-wallet": "^7.1.0-beta.0",
-    "@taquito/signer": "^7.1.0-beta.0",
-    "@taquito/taquito": "^7.1.0-beta.0",
+    "@airgap/beacon-sdk": "^2.2.1",
+    "@taquito/beacon-wallet": "^8.0.1-beta.1",
+    "@taquito/signer": "^8.0.1-beta.1",
+    "@taquito/taquito": "^8.0.1-beta.1",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
