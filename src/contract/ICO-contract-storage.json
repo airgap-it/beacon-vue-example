@@ -1,13 +1,49 @@
-{
+ {
     "prim": "Pair",
     "args": [
-      {
-        "prim": "Pair",
-        "args": [
-          { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" },
-          [ { "prim": "Elt", "args": [ { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" }, { "prim": "Pair", "args": [ [], { "int": "10000000" } ] } ] } ]
-        ]
-      },
-      { "prim": "Pair", "args": [ { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" }, { "prim": "Pair", "args": [ [], { "int": "10000000" } ] } ] }
+        {
+            "prim": "Pair",
+            "args": [
+                {
+                    "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U"
+                },
+                [
+                    {
+                        "prim": "Elt",
+                        "args": [
+                            {
+                                "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U"
+                            },
+                            {
+                                "prim": "Pair",
+                                "args": [
+                                    [],
+                                    {
+                                        "int": "10000000"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            ]
+        },
+        {
+            "prim": "Pair",
+            "args": [
+                {
+                    "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U"
+                },
+                {
+                    "prim": "Pair",
+                    "args": [
+                        [],
+                        {
+                            "int": "10000000"
+                        }
+                    ]
+                }
+            ]
+        }
     ]
-  }
+}

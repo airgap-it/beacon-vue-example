@@ -59,10 +59,12 @@ import {
   TezosOperationType,
   BeaconEvent,
 } from "@airgap/beacon-sdk";
-import { Tezos } from "@taquito/taquito";
+import { TezosToolkit } from "@taquito/taquito";
 import { BeaconWallet } from "@taquito/beacon-wallet";
 import { Component, Vue } from "vue-property-decorator";
 import { defaultEventCallbacks } from "@airgap/beacon-sdk/dist/events";
+
+const Tezos = new TezosToolkit('https://delphinet.smartpy.io')
 
 @Component
 export default class Beacon extends Vue {
