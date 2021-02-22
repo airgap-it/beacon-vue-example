@@ -1,146 +1,84 @@
 <template>
   <div class="hello">
-    <h3>Demo 1 - Request Permission</h3>
+    <h3>Send SMAK and freeze</h3>
+    
+    <button v-on:click="sendSMAKfromDBAndFreeze">Send SMAK and freeze</button>
     <br />
-    <button v-on:click="requestPermission">Request Permission</button>
     <br />
-
-    <span v-if="address">
-      {{ address }}
+    <span v-if="opHash">
+      address : https://delphi.tzstats.com/{{ opHash }}
       <br />
-      {{ scopes }}
+      <br />
+      <pre>
+      <code> 
+        {{ result }}   
+      </code>
+      </pre>
     </span>
-
-    <h3>Demo 2 - Send Operation Request</h3>
     <br />
-    <button v-on:click="requestOperation">Delegate Operation</button>
-    <br />
-
-    {{ operationHash }}
-
-    <h3>Demo 3 - Contract Call</h3>
-    <br />
-    <button v-on:click="callContract">Call Contract</button>
-    <br />
-
-    {{ taquitoOperationHash }}
-
-    <h3>Links</h3>
-    <ul>
-      <li>
-        <a
-          href="https://github.com/airgap-it/beacon-vue-example"
-          target="_blank"
-          rel="noopener"
-          >Github</a
-        >
-      </li>
-      <li>
-        <a
-          href="https://github.com/airgap-it/beacon-sdk"
-          target="_blank"
-          rel="noopener"
-          >Beacon SDK</a
-        >
-      </li>
-      <li>
-        <a href="https://www.walletbeacon.io/" target="_blank" rel="noopener"
-          >walletbeacon.io</a
-        >
-      </li>
-    </ul>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  DAppClient,
-  PermissionScope,
-  TezosOperationType,
-  BeaconEvent,
-  NetworkType,
-  defaultEventCallbacks
-} from "@airgap/beacon-sdk";
 import { TezosToolkit } from "@taquito/taquito";
-import { BeaconWallet } from "@taquito/beacon-wallet";
 import { Component, Vue } from "vue-property-decorator";
+import FAUCET_KEY from "../contract/faucet-account.json"
+import { importKey } from "@taquito/signer"
 
 const Tezos = new TezosToolkit('https://delphinet.smartpy.io')
 
 @Component
-export default class Beacon extends Vue {
-  // PermissionRequest
-  public address: string | null = null;
-  public scopes: PermissionScope[] | null = null;
+export default class Escrow extends Vue {
+  public tezosAddress: string | null = "";
+  public SMAKAmount: number | null = 0;
+  public freezeDuration : number | null = 0;
+  public result : any | null ="";
+  public opHash : string | null = ""
 
-  // OperationRequest
-  public operationHash: string | null = null;
-
-  // Taquito Example
-  public taquitoOperationHash: string | null = null;
-
-  private beaconClient = new DAppClient({
-    name: "Vue DApp",
-    eventHandlers: {
-      // Overwrite standard behavior of certain events
-      [BeaconEvent.PAIR_INIT]: {
-        handler: async (syncInfo) => {
-          // Add standard behavior back (optional)
-          await defaultEventCallbacks.PAIR_INIT(syncInfo);
-          console.log("syncInfo", syncInfo);
-        },
+  public investors: any = [
+      {
+          receiver : "tz1ezATW7wh5Q8FTyTFbKWzc4C64miYWeJar",
+          smak : 10,
+          duration : 1000
       },
-    },
-  });
-
-  // Send a permission request to the wallet / extension
-  async requestPermission() {
-    const permissions = await this.beaconClient.requestPermissions({network:{type : NetworkType.DELPHINET }});
-
-    this.address = permissions.address;
-    this.scopes = permissions.scopes;
-  }
-
-  // Send an operation request to the wallet / extension
-  async requestOperation() {
-    const operationResponse = await this.beaconClient.requestOperation({
-      operationDetails: [
-        {
-          kind: TezosOperationType.TRANSACTION,
-          amount: "123",
-          destination: "tz1Mj7RzPmMAqDUNFBn5t5VbXmWW4cSUAdtT",
-        },
-      ],
-    });
-
-    this.operationHash = operationResponse.transactionHash;
-  }
+      {
+          receiver : "tz1UuFDiMMiedwh6DHaWyFqT5baEdoCjm5zD",
+          smak : 20, 
+          duration : 1
+      },
+  ]
 
   // Showcase the Taquito Wallet API
   // In a real application, we wouldn't initialize the wallet in a method
   // but in a service, so it only happens once.
-  async callContract() {
-    const wallet = new BeaconWallet({ name: "Taquito DApp" });
-    Tezos.setWalletProvider(wallet);
-    // Request permissions
-    await wallet.requestPermissions({network : {type : NetworkType.DELPHINET }});
-
-    // Get contract
-    const contract = await Tezos.wallet.at(
-      "KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn" // TZBTC
+  async sendSMAKfromDBAndFreeze() {
+    importKey(
+      Tezos,
+      FAUCET_KEY.email,
+      FAUCET_KEY.password,
+      FAUCET_KEY.mnemonic.join(' '),
+      FAUCET_KEY.secret
     );
+    
+    const contract = await Tezos.contract
+    .at('KT1UULSK1vjMrNjoU3fk5QL52o7T5AREohsF');
 
-    // Call a method on a contract
-    const result = await contract.methods
-      .transfer(
-        "tz1d75oB6T4zUMexzkr5WscGktZ1Nss1JrT7",
-        "tz1Mj7RzPmMAqDUNFBn5t5VbXmWW4cSUAdtT",
-        1
-      )
-      .send();
+    const batch = await Tezos.batch();
 
-    this.taquitoOperationHash = result.opHash;
+    for(let i=0; i < this.investors.length; i++)
+      {
+        batch.withContractCall(contract.methods.transferAndFreeze(
+        this.investors[i].receiver,
+        this.investors[i].smak,
+        this.investors[i].duration
+        ))
+      }
+    const batchOp = await batch.send();
+    await batchOp.confirmation();    
+    this.opHash = batchOp.hash;
+    this.result = JSON.stringify(batchOp.results, null, 2);
   }
+
 }
 </script>
 

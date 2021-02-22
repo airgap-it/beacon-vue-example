@@ -11,7 +11,7 @@ import Beacon from "./components/Beacon.vue";
 
 @Component({
   components: {
-    Beacon,
+    Beacon
   },
 })
 export default class App extends Vue {}
