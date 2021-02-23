@@ -1,7 +1,7 @@
 {
   "name": "beacon-vue-example",
   "version": "0.1.0",
-  "private": true
+  "private": true,
   "dependencies": {
     "@airgap/beacon-sdk": "^2.2.1",
     "@taquito/beacon-wallet": "^8.0.1-beta.1",
