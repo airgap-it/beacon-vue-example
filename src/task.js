@@ -5,17 +5,11 @@
  * This module gives a few basic functions to interact with the Smart-Chain Certification API
  */
 
-const config = require('../config.json');	//module customisation
+require('dotenv').config({ path: process.env.PWD + `/../.env` });	                //module customisation
 const mysql = require('mysql2/promise'); 			//used to communicate with the DB
 const axios = require('axios');				//used to send HTTP requests
 
 
-/**Parameters of the HTTP requests
-* {String} BASE_URL	- url of the API
-* {String} AUTH_TOKEN	- client token to connect the API
-*/
-
-axios.defaults.baseURL = config.BASE_URL;
 
 
 /**
@@ -38,10 +32,18 @@ async function sendBatch(DB_HOSTNAME, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME) {
 
 async function getBitcoinTxs() {
     axios.defaults.baseURL = "https://blockchain.info";
-	const url = "/rawaddr/" + config.BitcoinAddress;
+	const url = "/rawaddr/" + process.env.BITCOINADDRESS;
 	const apiResp = await axios.get(url);
-	return apiResp.data.state;
+	return apiResp.data.txs;
 };
+
+function parseBitcoinTxs(txs) {
+    const res1 = txs.map(x => {
+        return x['inputs']
+    });
+
+    return res;
+}
 
 /**
 * Function that gets the details of the transactions received on the Tezos address,
@@ -50,10 +52,29 @@ async function getBitcoinTxs() {
 
 async function getEthereumTxs() {
     axios.defaults.baseURL = "https://api.etherscan.io"
-	const url = "/api?module=account&action=txlist&address=" + config.EthereumAddress + "&startblock=0&endblock=99999999&sort=asc&apikey=" + config.EtherscanToken;
+	const url = "/api?module=account&action=txlist&address=" + process.env.ETHEREUMADDRESS + "&startblock=0&endblock=99999999&sort=asc&apikey=" + process.env.ETHERSCANTOKEN;
 	const apiResp = await axios.get(url);
-	return apiResp.data;
+	return apiResp.data.result;
 };
+
+function parseEthereumTxs(txs) {
+    const res = txs.map(x => { 
+        return {
+                    "sender": x['from'],
+                    "receiver": x['to'],
+                    "amount": x['value'],
+                    "timestamp": x['timeStamp'],
+                    "hash": x['hash'],
+                    "gas": x['gas'],
+                    "gasPrice": x['gasPrice'],
+                    "cumulativeGasUsed": x['cumulativeGasUsed'],
+                    "gasUsed": x['gasUsed'],
+                    "confirmations": x['confirmations']
+                }
+    });
+    return res;
+}
+
 
 /**
 * Function that gets the details of the transactions received on the Tezos address,
@@ -62,8 +83,48 @@ async function getEthereumTxs() {
 
 async function getTezosTxs() {
     axios.defaults.baseURL = "https://api.tzkt.io";
-	const url = "/v1/accounts/" + config.TezosAddress + "/operations";
+	const url = "/v1/accounts/" + process.env.TEZOSADDRESS + "/operations";
 	const apiResp = await axios.get(url);
 	return apiResp.data;
 };
+
+function parseTezosTxs(txs) {
+    const res = txs.map(x => {
+        return {
+                    "sender": x['sender']['address'],
+                    "reveiver": x['target']['address'],
+                    "amount": x['amount'],
+                    "timestamp": x['timestamp'],
+                    "hash": x['hash'],
+                    "block": x['level'],
+                    "gas": x['gasUsed'],
+                    "storage": x['storageUsed'],
+                    "bakerFee": x['bakerFee'],
+                    "storageFee": x['storagrFee']
+                }
+    });
+    return res;
+}
+
+
+async function main(){
+    /*
+    const res = await getBitcoinTxs();
+    console.log(res);
+    */
+    const res = await getEthereumTxs();
+    //console.log(res);
+    const txs = parseEthereumTxs(res);
+    console.log(txs);
+    /*
+    const res = await getTezosTxs();
+    //console.log(res);
+    const txs = parseTezosTxs(res);
+    console.log(txs);
+    */
+}
+
+main();
+
+
 
