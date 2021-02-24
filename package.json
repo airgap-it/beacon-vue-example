@@ -1,57 +1,23 @@
 {
-  "name": "beacon-vue-example",
+  "name": "nodejs-ico",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "deploy": "./deploy.sh"
-  },
   "dependencies": {
-    "@airgap/beacon-sdk": "^1.0.4",
-    "@taquito/beacon-wallet": "^7.1.0-beta.0",
-    "@taquito/signer": "^7.1.0-beta.0",
-    "@taquito/taquito": "^7.1.0-beta.0",
+    "@airgap/beacon-sdk": "^2.2.1",
+    "@taquito/beacon-wallet": "^8.0.1-beta.1",
+    "@taquito/signer": "^8.0.1-beta.1",
+    "@taquito/taquito": "^8.0.1-beta.1",
+    "axios": "^0.21.1",
     "core-js": "^3.6.5",
-    "vue": "^2.6.11",
-    "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^8.4.2"
+    "dotenv": "^8.2.0",
+    "mysql2": "^2.2.5"
   },
   "devDependencies": {
     "@types/chrome": "0.0.114",
     "@types/libsodium-wrappers": "^0.7.7",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
-    "@vue/cli-plugin-babel": "~4.4.0",
-    "@vue/cli-plugin-eslint": "~4.4.0",
-    "@vue/cli-plugin-typescript": "~4.4.0",
-    "@vue/cli-service": "~4.4.0",
-    "@vue/eslint-config-prettier": "^6.0.0",
-    "@vue/eslint-config-typescript": "^5.0.2",
-    "eslint": "^6.7.2",
-    "eslint-plugin-prettier": "^3.1.3",
-    "eslint-plugin-vue": "^6.2.2",
-    "prettier": "^2.0.5",
-    "typescript": "~3.9.3",
-    "vue-template-compiler": "^2.6.11"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended",
-      "@vue/typescript/recommended",
-      "@vue/prettier",
-      "@vue/prettier/@typescript-eslint"
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "rules": {}
+    "typescript": "~3.9.3"
   },
   "browserslist": [
     "> 1%",
