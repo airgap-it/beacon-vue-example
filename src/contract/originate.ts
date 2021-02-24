@@ -1,7 +1,7 @@
 import { importKey } from "@taquito/signer"
 import { TezosToolkit } from '@taquito/taquito';
 
-const tezos = new TezosToolkit("https://delphinet.smartpy.io")
+const tezos = new TezosToolkit('https://delphinet.smartpy.io')
 const FAUCET_KEY = require('./faucet-account.json')
 
 importKey(
