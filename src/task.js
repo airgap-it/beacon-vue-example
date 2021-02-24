@@ -2,7 +2,7 @@
  * @module smart-link-ICO
  * @author Smart-Chain
  * @version 1.0.0
- * This module gives a few basic functions to interact with the Smart-Chain Certification API
+ * This module 
  */
 
 require('dotenv').config({ path: process.env.PWD + `/../.env` });	                //module customisation
@@ -25,7 +25,7 @@ async function sendBatch(DB_HOSTNAME, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME) {
 
 };
 
-/**c
+/**
 * Function that gets the details of the transactions received on the Tezos address,
 * @returns  {String} 		- JSON 
 */
@@ -37,10 +37,23 @@ async function getBitcoinTxs() {
 	return apiResp.data.txs;
 };
 
+
+/**
+* Function that extracts usefull information about the transactions :
+*   - sender address
+*   - receiver address
+*   - block height of the transaction
+*   - amount of BTC received
+*   - timestamp of the transaction
+*   - hash of the transaction for further analysis
+* @param    {JSON} txs  transactions with full detail
+* @returns  {JSON} res  transactions only with important informations
+*/
+
 function parseBitcoinTxs(txs) {
     const resb = txs.map(x => {
         return {
-                    //"sender": x['inputs'][0]['prev_out']['addr'],
+                    //"sender": x['inputs'][0]['prev_out']['addr'],       // retourne 1 seule adresse
                     /**
                     * Attention ! si plusieurs utxo en inputs, l'adresse d'envoi est-elle la même ? à vérifier
                     */
@@ -61,8 +74,17 @@ function parseBitcoinTxs(txs) {
 /** 
  * TO DO 
  * 1) vérifier que le champ "amount" est bien le montant reçu par SmartLink
- * 2) récupérer la hauteur de bloc actuel pour comparer avec le numéro de bloc de la tx et vérifier le nombre de confirmation
 */
+
+async function getBitcoinBlock() {
+    axios.defaults.baseURL = "https://blockchain.info";
+	const url = "/latestblock";
+	const apiResp = await axios.get(url);
+	return {
+                "height": apiResp.data.height,
+                "timestamp": apiResp.data.time
+            }
+}
 
 /**
 * Function that gets the details of the transactions received on the Tezos address,
@@ -141,16 +163,20 @@ async function main(){
     const res = await getBitcoinTxs();
     console.log(res);
     */
+   /*
     const res = await getEthereumTxs();
     //console.log(res);
     const txs = parseEthereumTxs(res);
     console.log(txs);
+    */
     /*
     const res = await getTezosTxs();
     //console.log(res);
     const txs = parseTezosTxs(res);
     console.log(txs);
     */
+   const res = await getBitcoinBlock();
+   console.log(res);
 }
 
 main();
