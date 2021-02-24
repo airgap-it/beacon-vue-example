@@ -25,7 +25,7 @@ async function sendBatch(DB_HOSTNAME, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME) {
 
 };
 
-/**
+/**c
 * Function that gets the details of the transactions received on the Tezos address,
 * @returns  {String} 		- JSON 
 */
@@ -38,12 +38,31 @@ async function getBitcoinTxs() {
 };
 
 function parseBitcoinTxs(txs) {
-    const res1 = txs.map(x => {
-        return x['inputs']
+    const resb = txs.map(x => {
+        return {
+                    //"sender": x['inputs'][0]['prev_out']['addr'],
+                    /**
+                    * Attention ! si plusieurs utxo en inputs, l'adresse d'envoi est-elle la même ? à vérifier
+                    */
+                    "sender": x['inputs'].map(x => {return {"addr": x['prev_out']['addr'], "value": x['prev_out']['value']}}), // retourne l'ensemble des utxos entrantes pour vérifier le comportement
+                    /**
+                    * Attention ! s'assurer que l'adresse SmartLink est dans les utxo en outputs et que le montant correspond bien au champ "amount"
+                    */
+                    "receiver": x['out'].map(x => {return {"addr": x['addr'], "value": x['value']}}),  // retourne l'ensemble des utxos sortantes pour vérifier le comportement
+                    "block": x['block_height'],
+                    "amount": x['result'],
+                    "timestamp": x['time'],
+                    "hash": x['hash']
+                }
     });
-
     return res;
 }
+
+/** 
+ * TO DO 
+ * 1) vérifier que le champ "amount" est bien le montant reçu par SmartLink
+ * 2) récupérer la hauteur de bloc actuel pour comparer avec le numéro de bloc de la tx et vérifier le nombre de confirmation
+*/
 
 /**
 * Function that gets the details of the transactions received on the Tezos address,
@@ -74,6 +93,11 @@ function parseEthereumTxs(txs) {
     });
     return res;
 }
+
+/**
+ * TO DO
+ * vérifier que le champ amount est bien celui reçu par SmartLink et qu'il ne faut pas soustraire le gas ou autre...
+ */
 
 
 /**
@@ -106,6 +130,11 @@ function parseTezosTxs(txs) {
     return res;
 }
 
+/**
+ * TO DO
+ * 1) vérifier que le champ amount est bien celui reçu par SmartLink et qu'il ne faut pas soustraire le gas, baker fee...
+ * 2) récupérer la hauteur de bloc actuel pour comparer avec le numéro de bloc de la tx et vérifier le nombre de confirmation
+*/
 
 async function main(){
     /*
