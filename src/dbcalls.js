@@ -26,13 +26,12 @@ connection.connect((err) => {
 });
 
 
-
 Tezos.contract
 .at('KT1F6R2HyqnUcZ1sL9c89iaGYYhYAuukTMA3')
 .then(function (contract) 
 {
     connection.query(
-        'SELECT reception_addr, SUM(amount*price_euro) AS total_amount FROM kyc k INNER JOIN blockchain b ON b.sender_addr = k.sender_addr GROUP BY reception_addr',
+        'SELECT reception_addr, sum(amount*price_euro) AS total_amount FROM transactions t INNER JOIN kyc k ON k.sender_addr = t.sender_addr INNER JOIN blockchain b ON b.tx_hash = t.tx_hash WHERE is_smak_sent IS false GROUP BY reception_addr',
         function(err, results) 
         {
             if (err) throw err;
@@ -46,7 +45,8 @@ Tezos.contract
             var batch = Tezos.batch();
             for (var i = 0; i < results.length; i++) {
 
-                var smak_amount = Math.ceil((results[i].total_amount/smakPriceEur)*1000000)
+                console.log(results)
+                var smak_amount = Math.ceil((results[i].total_amount/smakPriceEur)*1000)
                 batch.withContractCall(
                     contract.methods.transferAndFreeze(
                         results[i].reception_addr, 
