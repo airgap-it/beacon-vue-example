@@ -22,8 +22,8 @@ create table blockchain (
 );
 
 create table transactions (
-    tx_hash varchar(255) not null references blockchain(tx_hash),
     sender_addr varchar(255) not null references kyc(sender_addr), 
+    tx_hash varchar(255) not null references blockchain(tx_hash),
     primary key (tx_hash, sender_addr)
 );
 

@@ -13,18 +13,18 @@ In order to insert the data to its corresponding table, please run the following
 
 **Load kyc table:**
 ``` sql
-LOAD DATA  INFILE '<PATH_TO_PROJECT>/kyc.csv' INTO TABLE kyc FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id_kyc, addr_type, sender_addr, reception_addr, mail, is_smak_sent);
+LOAD DATA  INFILE '/var/lib/mysql-files/kyc.csv' INTO TABLE kyc FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id_kyc, addr_type, sender_addr, reception_addr, mail, is_smak_sent);
 ```
 
 **Load blockchain table:**
 ```sql
-LOAD DATA  INFILE '<PATH_TO_PROJECT>/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (tx_hash, amount, price_euro, tx_date);
+LOAD DATA  INFILE '/var/lib/mysql-files/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (tx_hash, amount, price_euro, tx_date);
 
 ```
 
 **Load transactions table:**
 ```sql
-LOAD DATA  INFILE '<PATH_TO_PROJECT>/transactions.csv' INTO TABLE transactions FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (tx_hash, sender_addr);
+LOAD DATA  INFILE '/var/lib/mysql-files/transactions.csv' INTO TABLE transactions FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (sender_addr,tx_hash);
 
 ```
 
@@ -34,4 +34,4 @@ If you have the following error:
 ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
 ```
 
-Please, move your .csv files into the folder `\var\lib\mysql-files\` and remplace <PATH_TO_PROJECT> by `\var\lib\mysql-files\`.
+Please, move your .csv files into the folder `/var/lib/mysql-files/` and remplace <PATH_TO_PROJECT> by `/var/lib/mysql-files/`.
