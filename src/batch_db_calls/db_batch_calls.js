@@ -49,35 +49,31 @@ async function getBatchesFromDb()
     }
 
     // Batching the results
+    const data_batches = await chunk(results, 2);
 
     // Ending connection with database
     console.log("Smartlink ICO API: Closing connection");
     connection.end();
     console.log("Smartlink ICO API: Connection closed !");
 
-    return results;
+    return data_batches;
 
 }
 
-async function prepareBatchToSendToBlockchain(contract, data_batch)
+async function prepareBatchToSendToBlockchain(contract, data)
 {
     // Init batch
     const batch = await Tezos.batch();
     
     // Add transactions to send to the batch
-    for(var i = 0; i < data_batch.length; i++)
+    for(var i = 0; i < data.length; i++)
     {
-        console.log(data_batch[i].reception_addr)
-        var smakAmount = computeSmakAmount(data_batch[i].total_amount)
+        var smakAmount = computeSmakAmount(data[i].total_amount)
         var duration = computeFreezeDuration()
-        
-        console.log(data_batch[i].reception_addr)
-        console.log(smakAmount)
-        console.log(duration)
 
         batch.withContractCall(
             contract.methods.transferAndFreeze(
-                data_batch[i].reception_addr,
+                data[i].reception_addr,
                 smakAmount,
                 duration
             )
@@ -92,20 +88,23 @@ async function sendBatchesToBlockchain(data_batch)
     // Get the contract
     const contract = await Tezos.contract.at('KT1F6R2HyqnUcZ1sL9c89iaGYYhYAuukTMA3');
     
-    console.log("Smartlink ICO API: Preparing the batch n°...");
     // Prepare the batch to send
-    const batch = await prepareBatchToSendToBlockchain(contract, data_batch)
-    
-    console.log("Smartlink ICO API: Sending the batch n°...");
-    
-    // Send the batch
-    const batchOp = await batch.send().catch(error => {
-        console.log(error)
-    });
+    for(var i = 0; i < data_batch.length; i++)
+    {
+        console.log("Smartlink ICO API: Preparing the batch n° ", i);
+        const batch = await prepareBatchToSendToBlockchain(contract, data_batch[i])
+        
+        console.log("Smartlink ICO API: Sending the batch n° ", i);
 
-    await batchOp.confirmation();
-    console.log("Smartlink ICO API: The operation of the batch n° is confirmed!");
-    console.log("Smartlink ICO API: The hash of the operation is ", batchOp.hash);
+        // Send the batch
+        const batchOp = await batch.send().catch(error => {
+            console.log(error)
+        });
+
+        await batchOp.confirmation();
+        console.log("Smartlink ICO API: The operation of the batch n° "+i+" is confirmed!");
+        console.log("Smartlink ICO API: The hash of the operation is ", batchOp.hash);
+    }
 }
 
 function computeSmakAmount(euroPrice){
@@ -133,13 +132,29 @@ function computeFreezeDuration(){
     return duration
 }
 
-console.log(config.TEZOS_NETWORK)
+/**
+* Function that chunks an array in chunks of a certain size,
+* @param    {Array} array	- array to chunk
+* @param    {Number} size	- size of the chunks
+* @returns  {Array[Array]} 	- array contening the chunks
+*/
 
-getBatchesFromDb().then(
-    (results)  => {
-        sendBatchesToBlockchain(results)
-    }
-)
+function chunk(array, size) {
+	const chunked_arr = [];
+	let copied = [...array]; // ES6 destructuring
+	const numOfChild = Math.ceil(copied.length / size); // Round up to the nearest integer
+	for (let i = 0; i < numOfChild; i++) {
+		chunked_arr.push(copied.splice(0, size));
+	}
+	return chunked_arr;
+}
+
+async function main(){
+    const data_in_batches = await getBatchesFromDb();
+    sendBatchesToBlockchain(data_in_batches);
+}
+
+main();
 
 
 
