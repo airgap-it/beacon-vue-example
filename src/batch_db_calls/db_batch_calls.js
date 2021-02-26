@@ -8,17 +8,19 @@
 const mysql2 = require('mysql2/promise');    // Used to communicate with the Database
 const taquito = require("@taquito/taquito");    // Used to communicate with the Tezos Blockchain
 const signer = require("@taquito/signer");      // Used to be able to interact with all the functions requiring signing in
+const config = require('../../config/config.js');
 
 const Tezos = new taquito.TezosToolkit('https://delphinet.smartpy.io');     // Connexion to the desired Tezos Network
-const FAUCET_KEY = require('../contract/faucet-account.json');
 
 const get_participants_and_their_amount = 'SELECT reception_addr, sum(amount*price_euro) AS total_amount FROM transactions t INNER JOIN kyc k ON k.sender_addr = t.sender_addr INNER JOIN blockchain b ON b.tx_hash = t.tx_hash WHERE is_smak_sent IS false GROUP BY reception_addr'
+
+// Import the signer account
 signer.importKey(
     Tezos, 
-    FAUCET_KEY.email, 
-    FAUCET_KEY.password, 
-    FAUCET_KEY.mnemonic.join(' '), 
-    FAUCET_KEY.secret
+    config.SIGNER_EMAIL, 
+    config.SIGNER_PASSWORD, 
+    config.SIGNER_MNEMONIC, 
+    config.SIGNER_SECRET
 );
 
 async function getBatchesFromDb()
@@ -26,10 +28,10 @@ async function getBatchesFromDb()
     // Connection to the database
     console.log("Smartlink ICO API: Connecting to the database...");
     const connection = await mysql2.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'password',
-        database: 'smart_link_ICO'
+        host: config.DB_HOST,
+        user: config.DB_USER,
+        password: config.DB_PASSWORD,
+        database: config.DB_NAME
       });
       
 
@@ -104,7 +106,6 @@ async function sendBatchesToBlockchain(data_batch)
     await batchOp.confirmation();
     console.log("Smartlink ICO API: The operation of the batch n° is confirmed!");
     console.log("Smartlink ICO API: The hash of the operation is ", batchOp.hash);
-    console.log("Smartlink ICO API: The result of the operation is ", batchOp.results);
 }
 
 function computeSmakAmount(euroPrice){
@@ -131,6 +132,8 @@ function computeFreezeDuration(){
     
     return duration
 }
+
+console.log(config.TEZOS_NETWORK)
 
 getBatchesFromDb().then(
     (results)  => {

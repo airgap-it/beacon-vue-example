@@ -6,6 +6,7 @@ src/contract/originate.js
 
 # local env files
 .env
+!dev.env
 .env.local
 .env.*.local
 

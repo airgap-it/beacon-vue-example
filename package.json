@@ -2,6 +2,9 @@
   "name": "nodejs-ico",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "dev":"set NODE_ENV=development&& node src/batch_db_calls/db_batch_calls.js"
+  },
   "dependencies": {
     "@airgap/beacon-sdk": "^2.2.1",
     "@taquito/beacon-wallet": "^8.0.1-beta.1",
