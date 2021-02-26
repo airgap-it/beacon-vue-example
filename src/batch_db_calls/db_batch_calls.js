@@ -32,7 +32,9 @@ async function getBatchesFromDb()
         user: config.DB_USER,
         password: config.DB_PASSWORD,
         database: config.DB_NAME
-      });
+      }).catch(error => {
+            console.log(error)
+        });
       
 
     // Querying the database for participants and their invested amounts
