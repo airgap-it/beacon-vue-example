@@ -6,7 +6,13 @@
 npm install
 ```
 
-## Run dev environment (for batch calls)
+## Run dev environment
+### Batch calls
 ``` bash
-npm run dev
+npm run batch_dev
+```
+
+### Originate contract
+``` bash
+npm run originate_dev
 ```

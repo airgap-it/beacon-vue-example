@@ -1,19 +1,35 @@
-"use strict";
-exports.__esModule = true;
-var signer_1 = require("@taquito/signer");
-var taquito_1 = require("@taquito/taquito");
-var tezos = new taquito_1.TezosToolkit('https://delphinet.smartpy.io');
-var FAUCET_KEY = require('./faucet-account.json');
-signer_1.importKey(tezos, FAUCET_KEY.email, FAUCET_KEY.password, FAUCET_KEY.mnemonic.join(' '), FAUCET_KEY.secret);
-tezos.contract
-    .originate({
-    code: require('./ICO-contract.json'),
-    init: require('./ICO-contract-storage.json')
-})
-    .then(function (originationOp) {
+var signer = require("@taquito/signer");
+var taquito = require("@taquito/taquito");
+const config = require('../../config/config.js');
+
+var Tezos = new taquito.TezosToolkit(config.TEZOS_NETWORK);
+// Import the signer account
+signer.importKey(
+    Tezos, 
+    config.SIGNER_EMAIL, 
+    config.SIGNER_PASSWORD, 
+    config.SIGNER_MNEMONIC, 
+    config.SIGNER_SECRET
+);
+
+async function originate()
+{
+    // Originate the contract
+    const originationOp = await Tezos.contract.originate({
+        code: require('./ICO-contract.json'),
+        init: require('./ICO-contract-storage.json')
+    }).catch(error => {
+        console.log(error)
+    });
+
     console.log("Waiting for confirmation of origination for " + originationOp.contractAddress + "...");
-    return originationOp.contract();
-})
-    .then(function (contract) {
+    
+    // Get the originated contract
+    const contract = await originationOp.contract().catch(error => {
+        console.log(error)
+    });
     console.log("Origination completed.");
-})["catch"](function (error) { return console.log("Error: " + JSON.stringify(error, null, 2)); });
+    
+}
+
+originate();

@@ -8,6 +8,6 @@
           [ { "prim": "Elt", "args": [ { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" }, { "prim": "Pair", "args": [ [], { "int": "1000000000" } ] } ] } ]
         ]
       },
-      { "prim": "Pair", "args": [ { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" }, { "prim": "Pair", "args": [ [], { "int": "1000000000" } ] } ] }
+      { "prim": "Pair", "args": [ { "string": "tz1VLCwEegxpLH9gepjWbyqwn9w1qbcmRN3U" }, { "prim": "Pair", "args": [ [], { "int": "896083333000" } ] } ] }
     ]
   }
