@@ -5,9 +5,10 @@ package-lock.json
 src/contract/originate.js
 
 # local env files
-.env
-.env.local
-.env.*.local
+*.env
+!development.env
+*.env.local
+*.env.*.local
 
 # Log files
 npm-debug.log*
