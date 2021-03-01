@@ -9,7 +9,7 @@ create table kyc (
     sender_addr varchar(255), 
     reception_addr varchar(255), 
     mail varchar(255),
-    is_smak_sent boolean, 
+    is_smak_sent varchar(255), 
     primary key (sender_addr)
 );
 
