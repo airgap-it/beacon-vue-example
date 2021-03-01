@@ -16,3 +16,8 @@ npm run batch_dev
 ``` bash
 npm run originate_dev
 ```
+
+### Export database data to csv
+``` bash
+npm rune export_dev
+```
