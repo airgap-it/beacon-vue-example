@@ -18,7 +18,7 @@ LOAD DATA  INFILE '<PATH_TO_PROJECT>/kyc.csv' INTO TABLE kyc FIELDS TERMINATED B
 
 **Load blockchain table:**
 ```sql
-LOAD DATA  INFILE '<PATH_TO_PROJECT>/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\r\n' IGNORE 1 ROWS (tx_hash, amount, price_euro, tx_date);
+LOAD DATA  INFILE '<PATH_TO_PROJECT>/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\r\n' IGNORE 1 ROWS (tx_hash, amount, price_dollar, tx_date);
 
 ```
 
