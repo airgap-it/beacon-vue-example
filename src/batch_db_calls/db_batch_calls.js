@@ -115,12 +115,14 @@ async function sendBatchesToBlockchain(data_batch)
         const batchOp = await batch.send().catch(error => {
             console.log(error)
         });
-
+        
+        // Wait for batch confirmation
         await batchOp.confirmation();
-        console.log("Smartlink ICO API: The operation of the batch n° "+i+" is confirmed!");
-        console.log("Smartlink ICO API: The hash of the operation is "+ batchOp.hash +" Now updating the database...");
-        await updateKycWithTxHash(connection, data_batch[i], batchOp.hash).catch(error => {
-            console.log(error)});
+        console.log("Smartlink ICO API: The operation of the batch n° "+i+" is confirmed! The hash of the operation is "+ batchOp.hash);
+
+        // Update the database with the new batch transaction hash
+        console.log("Smartlink ICO API:  Now updating the database...");
+        await updateKycWithTxHash(connection, data_batch[i], batchOp.hash).catch(error => {console.log(error)});
         console.log("Smartlink ICO API: Database updated! Finished processing batch n° "+i+".");
     }
 
@@ -129,10 +131,10 @@ async function sendBatchesToBlockchain(data_batch)
 
 async function updateKycWithTxHash(connection, data, tx_hash)
 {
+    // For a batch, get the reception address, and update the kyc table accordingly
     for(var i = 0; i < data.length; i++)
     {
-        await connection.query(set_sent_smak, [tx_hash, data[i].reception_addr]).catch(error => {
-            console.log(error)});
+        await connection.query(set_sent_smak, [tx_hash, data[i].reception_addr]).catch(error => {console.log(error)});
     }
 }
 
