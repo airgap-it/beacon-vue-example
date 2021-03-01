@@ -3,10 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "batch_dev":"set NODE_ENV=development&& node src/batch_db_calls/db_batch_calls.js",
-    "originate_dev":"set NODE_ENV=development&& node src/contract/originate.js",
-    "batch":"set NODE_ENV=production&& node src/batch_db_calls/db_batch_calls.js",
-    "originate":"set NODE_ENV=production&& node src/contract/originate.js"
+    "batch_dev": "set NODE_ENV=development&& node src/batch_db_calls/db_batch_calls.js",
+    "originate_dev": "set NODE_ENV=development&& node src/contract/originate.js",
+    "batch": "set NODE_ENV=production&& node src/batch_db_calls/db_batch_calls.js",
+    "originate": "set NODE_ENV=production&& node src/contract/originate.js",
+    "export_dev": "set NODE_ENV=development&& node src/export_csv/export_csv.js",
+    "export": "set NODE_ENV=production&& node src/export_csv/export_csv.js"
   },
   "dependencies": {
     "@airgap/beacon-sdk": "^2.2.1",
@@ -23,7 +25,7 @@
     "@types/libsodium-wrappers": "^0.7.7",
     "@typescript-eslint/eslint-plugin": "^2.33.0",
     "@typescript-eslint/parser": "^2.33.0",
-    "typescript": "~3.9.3"
+    "json2csv": "^5.0.6"
   },
   "browserslist": [
     "> 1%",
