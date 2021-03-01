@@ -13,18 +13,18 @@ In order to insert the data to its corresponding table, please run the following
 
 **Load kyc table:**
 ``` sql
-LOAD DATA  INFILE '/var/lib/mysql-files/kyc.csv' INTO TABLE kyc FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (id_kyc, addr_type, sender_addr, reception_addr, mail, is_smak_sent);
+LOAD DATA  INFILE '<PATH_TO_PROJECT>/kyc.csv' INTO TABLE kyc FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\r\n' IGNORE 1 ROWS (id_kyc, addr_type, sender_addr, reception_addr, mail, is_smak_sent);
 ```
 
 **Load blockchain table:**
 ```sql
-LOAD DATA  INFILE '/var/lib/mysql-files/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (tx_hash, amount, price_euro, tx_date);
+LOAD DATA  INFILE '<PATH_TO_PROJECT>/blockchain.csv' INTO TABLE blockchain FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\r\n' IGNORE 1 ROWS (tx_hash, amount, price_dollar, tx_date);
 
 ```
 
 **Load transactions table:**
 ```sql
-LOAD DATA  INFILE '/var/lib/mysql-files/transactions.csv' INTO TABLE transactions FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\n' IGNORE 1 ROWS (sender_addr,tx_hash);
+LOAD DATA  INFILE '<PATH_TO_PROJECT>/transactions.csv' INTO TABLE transactions FIELDS TERMINATED BY ',' optionally enclosed by '"' LINES TERMINATED BY '\r\n' IGNORE 1 ROWS (sender_addr,tx_hash);
 
 ```
 

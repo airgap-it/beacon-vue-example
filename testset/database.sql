@@ -9,14 +9,14 @@ create table kyc (
     sender_addr varchar(255), 
     reception_addr varchar(255), 
     mail varchar(255),
-    is_smak_sent boolean, 
+    is_smak_sent varchar(255), 
     primary key (sender_addr)
 );
 
 create table blockchain (
     tx_hash varchar(255) NOT NULL, 
     amount float(18,8), 
-    price_euro float(18,8), 
+    price_dollar float(18,8), 
     tx_date datetime, 
     primary key (tx_hash)
 );

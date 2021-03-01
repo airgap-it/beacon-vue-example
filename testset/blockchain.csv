@@ -1,4 +1,4 @@
-tx_hash,amount,price_euro,tx_date
+tx_hash,amount,price_dollar,tx_date
 8bef4873749bd8a8f99605bab355b73d3af5985ecb9ecc3fb57ed9f76e8adc0a,50432,0.5,2021-01-14 0:00:00
 0xb5c8bd9430b6cc87a0e2fe110ece6bf527fa4f170a4bc8cd032f768fc5219838,3.5,300,2021-02-14 0:03:00
 ooDdmTcnvfk2iaDLfTEMWbNiqThD3dkMgA218CVAt6s5iUCUEcK,1800,20,2021-02-17 0:12:00

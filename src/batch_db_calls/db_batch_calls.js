@@ -12,7 +12,8 @@ const config = require('../../config/config.js');
 
 const Tezos = new taquito.TezosToolkit('https://delphinet.smartpy.io');     // Connexion to the desired Tezos Network
 
-const get_participants_and_their_amount = 'SELECT reception_addr, sum(amount*price_euro) AS total_amount FROM transactions t INNER JOIN kyc k ON k.sender_addr = t.sender_addr INNER JOIN blockchain b ON b.tx_hash = t.tx_hash WHERE is_smak_sent IS false GROUP BY reception_addr'
+const get_participants_and_their_amount = 'SELECT reception_addr, sum(amount*price_dollar) AS total_amount FROM transactions t INNER JOIN kyc k ON k.sender_addr = t.sender_addr INNER JOIN blockchain b ON b.tx_hash = t.tx_hash where is_smak_sent IS NULL  GROUP BY reception_addr'
+const set_sent_smak = 'UPDATE kyc  SET is_smak_sent = ? WHERE reception_addr LIKE ?';
 
 // Import the signer account
 signer.importKey(
@@ -23,18 +24,30 @@ signer.importKey(
     config.SIGNER_SECRET
 );
 
-async function getBatchesFromDb()
+async function connectToDb()
 {
-    // Connection to the database
     console.log("Smartlink ICO API: Connecting to the database...");
     const connection = await mysql2.createConnection({
         host: config.DB_HOST,
         user: config.DB_USER,
         password: config.DB_PASSWORD,
         database: config.DB_NAME
-      }).catch(error => {
-            console.log(error)
-        });
+      }).catch(error => {console.log(error)});
+
+      return connection;
+}
+
+function endDbConnection(connection_to_end)
+{
+    console.log("Smartlink ICO API: Closing connection");
+    connection_to_end.end();
+    console.log("Smartlink ICO API: Connection closed !");
+}
+
+async function getBatchesFromDb()
+{
+    // Connection to the database
+    const connection = await connectToDb();
       
 
     // Querying the database for participants and their invested amounts
@@ -54,10 +67,7 @@ async function getBatchesFromDb()
     const data_batches = await chunk(results, 2);
 
     // Ending connection with database
-    console.log("Smartlink ICO API: Closing connection");
-    connection.end();
-    console.log("Smartlink ICO API: Connection closed !");
-
+    endDbConnection(connection)
     return data_batches;
 
 }
@@ -90,6 +100,9 @@ async function sendBatchesToBlockchain(data_batch)
     // Get the contract
     const contract = await Tezos.contract.at('KT1F6R2HyqnUcZ1sL9c89iaGYYhYAuukTMA3');
     
+    // Connect to the database
+    const connection = await connectToDb();
+
     // Prepare the batch to send
     for(var i = 0; i < data_batch.length; i++)
     {
@@ -102,10 +115,26 @@ async function sendBatchesToBlockchain(data_batch)
         const batchOp = await batch.send().catch(error => {
             console.log(error)
         });
-
+        
+        // Wait for batch confirmation
         await batchOp.confirmation();
-        console.log("Smartlink ICO API: The operation of the batch n° "+i+" is confirmed!");
-        console.log("Smartlink ICO API: The hash of the operation is ", batchOp.hash);
+        console.log("Smartlink ICO API: The operation of the batch n° "+i+" is confirmed! The hash of the operation is "+ batchOp.hash);
+
+        // Update the database with the new batch transaction hash
+        console.log("Smartlink ICO API:  Now updating the database...");
+        await updateKycWithTxHash(connection, data_batch[i], batchOp.hash).catch(error => {console.log(error)});
+        console.log("Smartlink ICO API: Database updated! Finished processing batch n° "+i+".");
+    }
+
+    endDbConnection(connection)
+}
+
+async function updateKycWithTxHash(connection, data, tx_hash)
+{
+    // For a batch, get the reception address, and update the kyc table accordingly
+    for(var i = 0; i < data.length; i++)
+    {
+        await connection.query(set_sent_smak, [tx_hash, data[i].reception_addr]).catch(error => {console.log(error)});
     }
 }
 
