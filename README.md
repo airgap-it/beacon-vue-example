@@ -8,7 +8,13 @@ npm install
 
 ## Run dev environment
 
-Be sure to have MySQL installed. Enter the host, user, password and database name in the develoment.env file under /config.
+Be sure to have MySQL installed. 
+
+### Create the database
+Follow instructions in /testset/readme.md to init empty database.
+
+### Configure the database connection
+Enter the host, user, password and database name in the develoment.env file under /config.
 
 ### Fetch transactions received
 Create a local env file called local.env under /config by copy/pasting the development.env file.
