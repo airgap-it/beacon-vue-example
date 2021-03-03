@@ -17,7 +17,8 @@ create table blockchain (
     tx_hash varchar(255) NOT NULL, 
     amount float(18,8), 
     price_dollar float(18,8), 
-    tx_date datetime, 
+    tx_date int(100),
+    price_date int(100),
     primary key (tx_hash)
 );
 
