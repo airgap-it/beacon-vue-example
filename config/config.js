@@ -23,5 +23,10 @@ module.exports = {
     DB_HOST: process.env.DB_HOST || 'localhost',
     DB_USER: process.env.DB_USER || 'root',
     DB_PASSWORD: process.env.DB_PASSWORD || 'password',
-    DB_NAME: process.env.DB_NAME || 'smart_link_ICO'
+    DB_NAME: process.env.DB_NAME || 'smart_link_ICO',
+
+    BITCOINADDRESS: process.env.BITCOINADDRESS,
+    ETHEREUMADDRESS: process.env.ETHEREUMADDRESS,
+    TEZOSADDRESS: process.env.TEZOSADDRESS,
+    ETHERSCANTOKEN: process.env.ETHERSCANTOKEN
   }

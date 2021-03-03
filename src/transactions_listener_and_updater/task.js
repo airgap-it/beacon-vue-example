@@ -6,27 +6,104 @@
  */
 
 const config = require('../../config/config.js');	                //env variables
-const mysql = require('mysql2/promise'); 			//used to communicate with the DB
+const mysql2 = require('mysql2/promise'); 			//used to communicate with the DB
 const axios = require('axios');				//used to send HTTP requests
 
 
 
 
+/////////////////////////////////////////// DATABASE ///////////////////////////////////////////
 
-
-const connection = await mysql.createConnection({
-    host     : config.DB_HOST,
-    user     : config.DB_USER,
-    password : config.DB_PASSWORD,
-    database : config.DB_NAME
-}).catch(error => {
-        console.log(error)
-});
-
-
-async function getDBTransactions(co) {
-    const [rows, fields] = await co.execute('SELECT * FROM ');
+/**
+* Function that connects to the database, it takes parameters from config file
+*/
+async function connectToDb() {
+    console.log("Smartlink ICO API: Connecting to the database...");
+    const connection = await mysql2.createConnection({
+        host: config.DB_HOST,
+        user: config.DB_USER,
+        password: config.DB_PASSWORD,
+        database: config.DB_NAME
+      }).catch(error => {console.log(error)});
+      console.log("Smartlink ICO API: Database connected !");
+    return connection;
 }
+
+
+/**
+* Function that closes the connection to the database
+* @param connection_to_end
+*/
+function endDbConnection(connection_to_end)
+{
+    console.log("Smartlink ICO API: Closing connection...");
+    connection_to_end.end();
+    console.log("Smartlink ICO API: Connection closed !");
+}
+
+
+/**
+* Function that gets all the hashes of the transactions registered in the table "blockchain"
+* @param    co  the current connection to the database
+* @returns      hashes of transactions
+*/
+async function getDBTransactions(co) {
+
+    console.log("Smartlink ICO API: Querying the database for the transactions hashes...");
+    const [rows, fields] = await co.execute('SELECT tx_hash FROM blockchain').catch(error => {console.log(error)});
+
+    if (rows === undefined){
+        throw "ERROR Smartlink ICO API: no response from database";
+    }
+
+    const res = rows.map(x => { return x['tx_hash']});
+    console.log("Smartlink ICO API: " + res.length + " transactions returned");
+    return res;
+}
+
+
+/**
+* Function that adds new transactions in the database for a specific coin (BTC, ETH or XTZ),
+* it compares the input transactions (txs) with the transactions already in the DB (db_txs),
+* it adds the latest price in USD for each transaction
+* @param    co      the current connection to the database
+* @param    db_txs  transactions in the database
+* @param    txs     list of transactions to be added
+* @param    price   price in USD
+*/
+async function addDBTransactions(co, db_txs, txs, coin, price) {
+
+    console.log("Smartlink ICO API: Adding new " + coin + " transactions to the database");
+    
+    // queries to insert data in the "blockchain" and "transactions" tables
+    const insert_blockchain = 'INSERT INTO blockchain (tx_hash, amount, price_dollar, tx_date, price_date) VALUES (?, ?, ?, ?, ?)';
+    const insert_transactions = 'INSERT INTO transactions (sender_addr, tx_hash) VALUES (?, ?)';
+
+    let index = index2 = blockchain_counter = transactions_counter = 0;
+    const txs_nb = txs.length;
+
+    for (; index < txs_nb; index++) {
+        
+        // checks for each transaction to be added of the transaction is already in the database
+        if (!db_txs.includes(txs[index].hash)) {
+
+            // if not present, adds the transactions in the blockchain table and updates associated counter
+            blockchain_counter++;
+            await co.query(insert_blockchain, [txs[index].hash, txs[index].amount, price.usd, txs[index].timestamp, price.last_updated_at]).catch(error => {console.log(error)});
+
+            // iterates through the array of sender addresses (can only be > 1 for BTC because of UTxO model, = 1 for ETH and XTZ)
+            let sender_addr_nb = txs[index].sender.length;
+            for (index2 = 0; index2 < sender_addr_nb; index2++) {
+                transactions_counter++;
+                await co.query(insert_transactions, [txs[index].sender[index2], txs[index].hash]).catch(error => {console.log(error)});
+            }
+        }   
+    }
+    // shows counters of rows inserted for each tables
+    console.log("Smartlink ICO API: " + blockchain_counter + " rows added in table blockchain");
+    console.log("Smartlink ICO API: " + transactions_counter + " rows added in table transactions");
+}
+
 
 
 /////////////////////////////////////////// BITCOIN ///////////////////////////////////////////
@@ -36,9 +113,11 @@ async function getDBTransactions(co) {
 * @returns  {JSON}  list of transactions 
 */
 async function getBitcoinTxs() {
+    console.log("Smartlink ICO API: fetching Bitcoin transactions...");
     axios.defaults.baseURL = "https://blockchain.info";
 	const url = "/rawaddr/" + config.BITCOINADDRESS;
-	const apiResp = await axios.get(url);
+	const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: " + apiResp.data.txs.length + " transactions fetched");
 	return apiResp.data.txs;
 };
 
@@ -54,11 +133,11 @@ async function getBitcoinTxs() {
 * @returns  {JSON}      transactions with important information only
 */
 function parseBitcoinTxs(txs) {
-    const resb = txs.map(x => {
+    const res = txs.map(x => {
         return {
                     "sender": x['inputs'].map(x => {return x['prev_out']['addr']}), // retourne l'ensemble des utxos entrantes
                     "block": x['block_height'],
-                    "amount": x['result'],
+                    "amount": x['result']/100000000,
                     "timestamp": x['time'],
                     "hash": x['hash']
                 }
@@ -69,12 +148,14 @@ function parseBitcoinTxs(txs) {
 
 /**
 * Function that gets the current block height of the Bitcoin blockchain,
-* @returns  {JSON}  list of transactions 
+* @returns  {number} 
 */
 async function getBitcoinBlock() {
+    console.log("Smartlink ICO API: fetching current Bitcoin block...");
     axios.defaults.baseURL = "https://blockchain.info";
 	const url = "/latestblock";
-	const apiResp = await axios.get(url);
+	const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: current Bitcoin block is " + apiResp.data.height);
 	return apiResp.data.height;
 }
 
@@ -87,6 +168,7 @@ async function getBitcoinBlock() {
 */
 function getValidBitcoinTxs(txs, block_height) {
     const res = txs.filter(x => block_height - x['block'] >= 3);
+    console.log("Smartlink ICO API: " + res.length + " of " + txs.length + " valid Bitcoin transactions (3 or more block confirmations)");
     return res;
 }
 
@@ -99,9 +181,11 @@ function getValidBitcoinTxs(txs, block_height) {
 * @returns  {String} 		- list of transactions
 */
 async function getEthereumTxs() {
+    console.log("Smartlink ICO API: fetching Ethereum transactions...");
     axios.defaults.baseURL = "https://api.etherscan.io"
 	const url = "/api?module=account&action=txlist&address=" + config.ETHEREUMADDRESS + "&startblock=0&endblock=99999999&sort=asc&apikey=" + config.ETHERSCANTOKEN;
-	const apiResp = await axios.get(url);
+	const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: " + apiResp.data.result.length + " transactions fetched");
 	return apiResp.data.result;
 };
 
@@ -119,9 +203,9 @@ async function getEthereumTxs() {
 function parseEthereumTxs(txs) {
     const res = txs.map(x => { 
         return {
-                    "sender": x['from'],
-                    "amount": x['value'],
-                    "timestamp": x['timeStamp'],
+                    "sender": [x['from']],
+                    "amount": x['value'].slice(0, -10)/100000000,
+                    "timestamp": parseInt(x['timeStamp'], 10),
                     "hash": x['hash'],
                     "confirmations": x['confirmations']
                 }
@@ -137,6 +221,7 @@ function parseEthereumTxs(txs) {
 */
 function getValidEthereumTxs(txs) {
     const res = txs.filter(x => x['confirmations'] >= 100);
+    console.log("Smartlink ICO API: " + res.length + " of " + txs.length + " valid Ethereum transactions (100 or more block confirmations)");
     return res;
 }
 
@@ -149,10 +234,14 @@ function getValidEthereumTxs(txs) {
 * @returns  {String} 		- list of transactions
 */
 async function getTezosTxs() {
+    console.log("Smartlink ICO API: fetching Tezos transactions...");
     axios.defaults.baseURL = "https://api.tzkt.io";
 	const url = "/v1/accounts/" + config.TEZOSADDRESS + "/operations";
-	const apiResp = await axios.get(url);
-	return apiResp.data;
+	const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    // keeps only transactions, removes "key revelation" or "delegation" associated transactions
+    const res = apiResp.data.filter(x => x['type'] == 'transaction');
+    console.log("Smartlink ICO API: " + res.length + " transactions fetched");
+	return res;
 };
 
 
@@ -169,9 +258,9 @@ async function getTezosTxs() {
 function parseTezosTxs(txs) {
     const res = txs.map(x => {
         return {
-                    "sender": x['sender']['address'],
-                    "amount": x['amount'],
-                    "timestamp": x['timestamp'],
+                    "sender": [x['sender']['address']],
+                    "amount": x['amount']/1000000,
+                    "timestamp": new Date(x['timestamp'])/1000,
                     "hash": x['hash'],
                     "block": x['level']
                 }
@@ -181,13 +270,15 @@ function parseTezosTxs(txs) {
 
 
 /**
-* Function that gets the details of the transactions received on the Tezos address,
-* @returns  {String} 		- list of transactions
+* Function that gets the current block height of the Tezos blockchain,
+* @returns  {number}
 */
 async function getTezosBlock() {
+    console.log("Smartlink ICO API: fetching current Tezos block...");
     axios.defaults.baseURL = "https://api.tzkt.io";
     const url = "/v1/blocks/count";
-    const apiResp = await axios.get(url);
+    const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: current Tezos block is " + apiResp.data);
     return apiResp.data;
 }
     
@@ -200,6 +291,7 @@ async function getTezosBlock() {
 */
 function getValidTezosTxs(txs, block_height) {
     const res = txs.filter(x => block_height - x['block'] >= 20);
+    console.log("Smartlink ICO API: " + res.length + " of " + txs.length + " valid Tezos transactions (20 or more block confirmations)");
     return res;
 }
 
@@ -211,9 +303,14 @@ function getValidTezosTxs(txs, block_height) {
 * @returns  {JSON} 		- list of transactions
 */
 async function getPrices() {
+    console.log("Smartlink ICO API: fetching latest coins prices...");
     axios.defaults.baseURL = "https://api.coingecko.com";
     const url = "/api/v3/simple/price?ids=bitcoin%2Cethereum%2Ctezos&vs_currencies=usd&include_market_cap=false&include_24hr_vol=false&include_24hr_change=false&include_last_updated_at=true";
-    const apiResp = await axios.get(url);
+    const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: latest coins prices :");
+    console.log("Bitcoin : " + apiResp.data.bitcoin.usd + " $ (" + new Date(apiResp.data.bitcoin.last_updated_at*1000) + ")");
+    console.log("Ethereum : " + apiResp.data.ethereum.usd + " $ (" + new Date(apiResp.data.ethereum.last_updated_at*1000) + ")");
+    console.log("Tezos : " + apiResp.data.tezos.usd + " $ (" + new Date(apiResp.data.tezos.last_updated_at*1000) + ")");
     return apiResp.data;
 }
     
@@ -225,24 +322,35 @@ async function getPrices() {
 
 
 async function main(){
-    /*
-    const res = await getBitcoinTxs();
-    console.log(res);
-    */
-   /*
-    const res = await getEthereumTxs();
-    //console.log(res);
-    const txs = parseEthereumTxs(res);
-    console.log(txs);
-    */
-    /*
-    const res = await getTezosTxs();
-    //console.log(res);
-    const txs = parseTezosTxs(res);
-    console.log(txs);
-    */
-   const res = await getBitcoinBlock();
-   console.log(res);
+
+    // gets Bitcoin transactions and sorts them
+    const btc = await getBitcoinTxs();
+    const pbtc = await parseBitcoinTxs(btc);
+    const block = await getBitcoinBlock();
+    const vbtc = await getValidBitcoinTxs(pbtc, block);
+
+    // gets Ethereum transactions and sorts them
+    const eth = await getEthereumTxs();
+    const peth = await parseEthereumTxs(eth);
+    const veth = await getValidEthereumTxs(peth);
+
+    // gets Tezos transactions and sorts them
+    const xtz = await getTezosTxs();
+    const pxtz = await parseTezosTxs(xtz);
+    const xtzblock = await getTezosBlock();
+    const vxtz = await getValidTezosTxs(pxtz, xtzblock);
+
+    // gets last prices of BTC, ETH and XTZ in USD
+    const prices = await getPrices();
+
+    // adds new transactions to the database
+    const co = await connectToDb();
+    const db_txs = await getDBTransactions(co);
+    await addDBTransactions(co, db_txs, vbtc, "Bitcoin", prices.bitcoin);
+    await addDBTransactions(co, db_txs, veth, "Ethereum", prices.ethereum);
+    await addDBTransactions(co, db_txs, vxtz, "Tezos", prices.tezos);
+    endDbConnection(co);
+
 }
 
 main();

@@ -3,16 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "batch_dev": "set NODE_ENV=development&& node src/batch_db_calls/db_batch_calls.js",
-    "originate_dev": "set NODE_ENV=development&& node src/contract/originate.js",
-    "batch": "set NODE_ENV=production&& node src/batch_db_calls/db_batch_calls.js",
-<<<<<<< HEAD
-    "originate": "set NODE_ENV=production&& node src/contract/originate.js"
-=======
-    "originate": "set NODE_ENV=production&& node src/contract/originate.js",
-    "export_dev": "set NODE_ENV=development&& node src/export_csv/export_csv.js",
-    "export": "set NODE_ENV=production&& node src/export_csv/export_csv.js"
->>>>>>> 2230e0003f58d55baabf7582b732d3d63ef66375
+    "batch": "node src/batch_db_calls/db_batch_calls.js",
+    "originate": "node src/contract/originate.js"
   },
   "dependencies": {
     "@airgap/beacon-sdk": "^2.2.1",
