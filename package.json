@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "fetch": "node src/transactions_listener_and_updater/task.js",
     "batch": "node src/batch_db_calls/db_batch_calls.js",
     "originate": "node src/contract/originate.js"
   },

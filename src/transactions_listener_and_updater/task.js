@@ -10,8 +10,6 @@ const mysql2 = require('mysql2/promise'); 			//used to communicate with the DB
 const axios = require('axios');				//used to send HTTP requests
 
 
-
-
 /////////////////////////////////////////// DATABASE ///////////////////////////////////////////
 
 /**
@@ -104,6 +102,74 @@ async function addDBTransactions(co, db_txs, txs, coin, price) {
     console.log("Smartlink ICO API: " + transactions_counter + " rows added in table transactions");
 }
 
+
+
+/////////////////////////////////////////// REVOLUT API ///////////////////////////////////////////
+
+/**
+* Function that uses the refresh token to get a new access token from the Revolut API,
+* @returns  {string}  Revolut API access token 
+*/
+async function connectRevolut() {
+    console.log("Smartlink ICO API: Refreshing connection to Revolut API...");
+    axios.defaults.baseURL = "https://sandbox-b2b.revolut.com";
+	const url = "/api/1.0/auth/token";
+    const options = {
+        grant_type: 'refresh_token',
+        refresh_token: config.REVOLUT_REFRESH_TOKEN,
+        client_id: config.REVOLUT_CLIENT_ID,
+        client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+        client_assertion: config.REVOLUT_JWT
+    };
+    const encodeForm = (data) => {
+        return Object.keys(data)
+            .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+            .join('&');
+      }
+    const apiResp = await axios.post(url, encodeForm(options), {headers: {'Accept': 'application/json'}}).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: Connected to Revolut API, new access token : " + apiResp.data.access_token);
+	return apiResp.data.access_token;
+};
+
+
+/**
+* Function that gets the details of the transactions received on the Revolut accounts (all accounts linked to the client),
+* @param    {string}    access_token    to the Revolut API
+* @returns  {JSON}                      list of transactions 
+*/
+async function getRevolutTxs(access_token) {
+    console.log("Smartlink ICO API: Fetching Revolut transactions...");
+    axios.defaults.baseURL = "https://sandbox-b2b.revolut.com";
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
+	const url = "/api/1.0/transactions?type=transfer";
+	const apiResp = await axios.get(url).catch(error => {console.log(error)});
+    console.log("Smartlink ICO API: " + apiResp.data.length + " transactions fetched");
+	return apiResp.data;
+};
+
+
+/**
+* Function that extracts usefull information about the Revolut transactions :
+*   - sender address
+*   - block height
+*   - amount of BTC received
+*   - timestamp of the transaction
+*   - hash of the transaction for further analysis
+* @param    {JSON} txs  transactions with full detail
+* @returns  {JSON}      transactions with important information only
+*/
+function parseRevolutTxs(txs) {
+    const res = txs.map(x => {
+        return {
+                    "sender": x['inputs'].map(x => {return x['prev_out']['addr']}), // retourne l'ensemble des utxos entrantes
+                    "block": x['block_height'],
+                    "amount": x['result']/100000000,
+                    "timestamp": x['time'],
+                    "hash": x['hash']
+                }
+    });
+    return res;
+}
 
 
 /////////////////////////////////////////// BITCOIN ///////////////////////////////////////////
@@ -323,6 +389,7 @@ async function getPrices() {
 
 async function main(){
 
+    /*
     // gets Bitcoin transactions and sorts them
     const btc = await getBitcoinTxs();
     const pbtc = await parseBitcoinTxs(btc);
@@ -350,10 +417,10 @@ async function main(){
     await addDBTransactions(co, db_txs, veth, "Ethereum", prices.ethereum);
     await addDBTransactions(co, db_txs, vxtz, "Tezos", prices.tezos);
     endDbConnection(co);
-
+*/
+    const bank = await connectRevolut();
+    const txs = await getRevolutTxs(bank);
+    console.log(txs);
 }
 
 main();
-
-
-
