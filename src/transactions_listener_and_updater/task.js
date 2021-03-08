@@ -161,11 +161,10 @@ async function getRevolutTxs(access_token) {
 function parseRevolutTxs(txs) {
     const res = txs.map(x => {
         return {
-                    "sender": x['inputs'].map(x => {return x['prev_out']['addr']}), // retourne l'ensemble des utxos entrantes
-                    "block": x['block_height'],
-                    "amount": x['result']/100000000,
-                    "timestamp": x['time'],
-                    "hash": x['hash']
+                    "sender": x['legs'][0]['counterparty']['account_id'],
+                    "amount": x['legs'][0]['amount'],
+                    "timestamp": x['completed_at'],
+                    "hash": x['id']
                 }
     });
     return res;
@@ -270,7 +269,7 @@ function parseEthereumTxs(txs) {
     const res = txs.map(x => { 
         return {
                     "sender": [x['from']],
-                    "amount": x['value'].slice(0, -10)/100000000,
+                    "amount": x['value'].slice(0, -10)/100000000,   // ethereum has a 10e-18 precision, we reduce it to 10e-8
                     "timestamp": parseInt(x['timeStamp'], 10),
                     "hash": x['hash'],
                     "confirmations": x['confirmations']
@@ -421,6 +420,8 @@ async function main(){
     const bank = await connectRevolut();
     const txs = await getRevolutTxs(bank);
     console.log(txs);
+    const ptxs = await parseRevolutTxs(txs);
+    console.log(ptxs);
 }
 
 main();
