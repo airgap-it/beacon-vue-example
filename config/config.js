@@ -8,22 +8,23 @@ dotenv.config({
 
 module.exports = {
     // Environment variables
-    NODE_ENV: process.env.NODE_ENV || 'development',
+    NODE_ENV: process.env.NODE_ENV,
 
     // Tezos Network variables
-    TEZOS_NETWORK: process.env.TEZOS_NETWORK || 'https://delphinet.smartpy.io',
+    RPC_ADDRESS: process.env.RPC_ADDRESS,
+    CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
 
     // Signer Variables
-    SIGNER_EMAIL: process.env.SIGNER_EMAIL || 'tenhvyxn.obmprmyv@tezos.example.org',
-    SIGNER_PASSWORD: process.env.SIGNER_PASSWORD || 'EyMJCD0OZQ',
-    SIGNER_MNEMONIC: process.env.SIGNER_MNEMONIC || 'early night exotic romance own casino winner slogan grant ethics light meat digital gasp around',
-    SIGNER_SECRET: process.env.SIGNER_SECRET || '3f45364979235067e8008bb64863f58aa4ff1571',
+    SIGNER_EMAIL: process.env.SIGNER_EMAIL,
+    SIGNER_PASSWORD: process.env.SIGNER_PASSWORD,
+    SIGNER_MNEMONIC: process.env.SIGNER_MNEMONIC,
+    SIGNER_SECRET: process.env.SIGNER_SECRET,
     
     // Database variables
-    DB_HOST: process.env.DB_HOST || 'localhost',
-    DB_USER: process.env.DB_USER || 'root',
-    DB_PASSWORD: process.env.DB_PASSWORD || 'password',
-    DB_NAME: process.env.DB_NAME || 'smart_link_ICO',
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_PASSWORD: process.env.DB_PASSWORD,
+    DB_NAME: process.env.DB_NAME,
 
     BITCOINADDRESS: process.env.BITCOINADDRESS,
     ETHEREUMADDRESS: process.env.ETHEREUMADDRESS,

@@ -2,7 +2,7 @@ var signer = require("@taquito/signer");
 var taquito = require("@taquito/taquito");
 const config = require('../../config/config.js');
 
-var Tezos = new taquito.TezosToolkit(config.TEZOS_NETWORK);
+var Tezos = new taquito.TezosToolkit(config.RPC_ADDRESS);
 // Import the signer account
 signer.importKey(
     Tezos, 
