@@ -33,10 +33,10 @@ export NODE_ENV=development && npm run batch
 
 ### Originate contract
 ``` bash
-export NODE_ENV=development && originate
+export NODE_ENV=development && npm run originate
 ```
 
 ### Export database data to csv
 ``` bash
-npm rune export_dev
+export NODE_ENV=development && npm run export
 ```
