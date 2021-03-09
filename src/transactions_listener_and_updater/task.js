@@ -171,6 +171,18 @@ function parseRevolutTxs(txs) {
 }
 
 
+/**
+* Function that selects only valid Revolut transactions for which the field timestamp is not undefined
+* @param    {JSON}   txs            list of transactions
+* @returns  {JSON}                  list of valid transactions 
+*/
+function getValidRevolutTxs(txs) {
+    const res = txs.filter(x => !!x['timestamp']);
+    console.log("Smartlink ICO API: " + res.length + " of " + txs.length + " valid Revolut transactions (that have been completed)");
+    return res;
+}
+
+
 /////////////////////////////////////////// BITCOIN ///////////////////////////////////////////
 
 /**
@@ -422,6 +434,7 @@ async function main(){
     console.log(txs);
     const ptxs = await parseRevolutTxs(txs);
     console.log(ptxs);
+    const vtxs = getValidRevolutTxs(ptxs);
 }
 
 main();

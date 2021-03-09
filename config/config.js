@@ -25,11 +25,13 @@ module.exports = {
     DB_PASSWORD: process.env.DB_PASSWORD || 'password',
     DB_NAME: process.env.DB_NAME || 'smart_link_ICO',
 
+    // Blockchains variables to query addresses
     BITCOINADDRESS: process.env.BITCOINADDRESS,
     ETHEREUMADDRESS: process.env.ETHEREUMADDRESS,
     TEZOSADDRESS: process.env.TEZOSADDRESS,
     ETHERSCANTOKEN: process.env.ETHERSCANTOKEN,
 
+    // Revolut variables to query bank API
     REVOLUT_REFRESH_TOKEN:process.env.REVOLUT_REFRESH_TOKEN,
     REVOLUT_CLIENT_ID:process.env.REVOLUT_CLIENT_ID,
     REVOLUT_JWT:process.env.REVOLUT_JWT
