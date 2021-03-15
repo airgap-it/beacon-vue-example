@@ -10,7 +10,7 @@ const taquito = require("@taquito/taquito");    // Used to communicate with the 
 const signer = require("@taquito/signer");      // Used to be able to interact with all the functions requiring signing in
 const config = require('../../config/config.js');
 
-const Tezos = new taquito.TezosToolkit('https://delphinet.smartpy.io');     // Connexion to the desired Tezos Network
+const Tezos = new taquito.TezosToolkit(config.RPC_ADDRESS);     // Connexion to the desired Tezos Network
 
 const get_participants_and_their_amount = 'SELECT reception_addr, sum(amount*price_dollar) AS total_amount FROM transactions t INNER JOIN kyc k ON k.sender_addr = t.sender_addr INNER JOIN blockchain b ON b.tx_hash = t.tx_hash where is_smak_sent IS NULL  GROUP BY reception_addr'
 const set_sent_smak = 'UPDATE kyc  SET is_smak_sent = ? WHERE reception_addr LIKE ?';
@@ -98,7 +98,7 @@ async function prepareBatchToSendToBlockchain(contract, data)
 async function sendBatchesToBlockchain(data_batch)
 {
     // Get the contract
-    const contract = await Tezos.contract.at('KT1F6R2HyqnUcZ1sL9c89iaGYYhYAuukTMA3');
+    const contract = await Tezos.contract.at(config.CONTRACT_ADDRESS);
     
     // Connect to the database
     const connection = await connectToDb();
