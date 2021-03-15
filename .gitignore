@@ -10,6 +10,7 @@ output/
 *.env
 !development.env
 local.env
+prod.env
 *.env.local
 *.env.*.local
 

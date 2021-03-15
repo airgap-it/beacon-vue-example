@@ -15,8 +15,8 @@ create table kyc (
 
 create table blockchain (
     tx_hash varchar(255) NOT NULL, 
-    amount float(100,8), 
-    price_dollar float(100,2), 
+    amount varchar(255), 
+    price_dollar varchar(255), 
     tx_date int(100),
     price_date int(100),
     primary key (tx_hash)
